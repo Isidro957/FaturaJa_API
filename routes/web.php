@@ -41,7 +41,9 @@ Route::middleware('auth')->group(function () {
     })->name('dashboard');
 
     // CRUD de empresas
+Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('empresas', EmpresaController::class);
+});
 
     // Logout
     Route::get('/logout', function(Request $request) {
@@ -51,6 +53,6 @@ Route::middleware('auth')->group(function () {
 
 });
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth', 'role:admin|empresa'])->group(function () {
     Route::resource('clientes', ClienteController::class);
 });

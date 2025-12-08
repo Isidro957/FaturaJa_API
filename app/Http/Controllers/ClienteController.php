@@ -8,8 +8,16 @@ use Illuminate\Support\Facades\Auth;
 
 class ClienteController extends Controller
 {
+    public function __construct()
+    {
+        // Somente usuários autenticados podem acessar
+        $this->middleware('auth');
+        // Admin ou Empresa
+        $this->middleware('role:admin|empresa');
+    }
+
     /**
-     * Listar clientes – Admin e Empresa podem ver
+     * Listar clientes – Admin e Empresa podem ver apenas da sua empresa
      */
     public function index()
     {
@@ -33,7 +41,7 @@ class ClienteController extends Controller
     }
 
     /**
-     * Criar cliente
+     * Criar cliente – vinculado automaticamente à empresa autenticada
      */
     public function store(Request $request)
     {
@@ -60,7 +68,7 @@ class ClienteController extends Controller
     }
 
     /**
-     * Editar cliente
+     * Editar cliente – mas só se pertencer à empresa do usuário
      */
     public function edit(Cliente $cliente)
     {
@@ -70,7 +78,7 @@ class ClienteController extends Controller
     }
 
     /**
-     * Atualizar cliente
+     * Atualizar cliente – também verificado pela Policy
      */
     public function update(Request $request, Cliente $cliente)
     {
@@ -89,7 +97,7 @@ class ClienteController extends Controller
     }
 
     /**
-     * Eliminar cliente – Somente Admin
+     * Apagar cliente – somente Admin
      */
     public function destroy(Cliente $cliente)
     {

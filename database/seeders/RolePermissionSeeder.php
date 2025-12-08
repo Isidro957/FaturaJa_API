@@ -1,5 +1,4 @@
 <?php
-
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
@@ -8,43 +7,34 @@ use Spatie\Permission\Models\Permission;
 
 class RolePermissionSeeder extends Seeder
 {
-    public function run(): void
-    {
-        // RESETAR CACHE
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+  public function run(): void
+{
+    // RESETAR CACHE
+    app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // PERMISSÕES DO SISTEMA
-        Permission::create(['name' => 'gerenciar usuarios']);
-        Permission::create(['name' => 'gerenciar empresas']);
-        Permission::create(['name' => 'gerenciar faturas']);
-        Permission::create(['name' => 'gerenciar clientes']);
-        Permission::create(['name' => 'ver relatorios']);
-        Permission::create(['name' => 'receber faturas']);
+    // PERMISSÕES DO SISTEMA
+    $permissions = [
+        'gerenciar usuarios' => ['admin'],
+        'gerenciar empresas' => ['admin'],
+        'gerenciar faturas' => ['admin', 'empresa'],
+        'gerenciar clientes' => ['admin', 'empresa'],
+        'ver relatorios' => ['admin', 'empresa'],
+        'receber faturas' => ['cliente'],
+    ];
 
-        // ROLES
-        $admin = Role::create(['name' => 'admin']);
-        $empresa = Role::create(['name' => 'empresa']);
-        $clienteFinal = Role::create(['name' => 'cliente']);
-
-        // PERMISSÕES DO ADMIN
-        $admin->givePermissionTo([
-            'gerenciar usuarios',
-            'gerenciar empresas',
-            'gerenciar faturas',
-            'gerenciar clientes',
-            'ver relatorios',
-        ]);
-
-        // PERMISSÕES DA EMPRESA
-        $empresa->givePermissionTo([
-            'gerenciar faturas',
-            'gerenciar clientes',
-            'ver relatorios',
-        ]);
-
-        // PERMISSÕES DO CLIENTE FINAL
-        $clienteFinal->givePermissionTo([
-            'receber faturas',
-        ]);
+    // Criar roles
+    $roles = [];
+    foreach (['admin', 'empresa', 'cliente'] as $roleName) {
+        $roles[$roleName] = Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'web']);
     }
+
+    // Criar permissões e atribuir às roles correspondentes
+    foreach ($permissions as $permName => $roleNames) {
+        $permission = Permission::firstOrCreate(['name' => $permName, 'guard_name' => 'web']);
+        foreach ($roleNames as $roleName) {
+            $roles[$roleName]->givePermissionTo($permission);
+        }
+    }
+}
+
 }

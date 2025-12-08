@@ -9,36 +9,26 @@ class ClientePolicy
 {
     /**
      * Ver lista de clientes
-     */
-    public function viewAny(User $user)
-    {
-        return $user->hasAnyRole(['admin', 'empresa']);
-    }
+     */public function viewAny(User $user)
+{
+    return $user->hasRole(['admin', 'empresa']);
+}
 
-    /**
-     * Criar cliente
-     */
-    public function create(User $user)
-    {
-        return $user->hasAnyRole(['admin', 'empresa']);
-    }
+public function create(User $user)
+{
+    return $user->hasRole(['admin', 'empresa']);
+}
 
-    /**
-     * Editar cliente
-     */
-    public function update(User $user, Cliente $cliente)
-    {
-        // Só pode editar clientes da sua própria empresa
-        return $user->empresa_id === $cliente->empresa_id
-            && $user->hasAnyRole(['admin', 'empresa']);
-    }
+public function update(User $user, Cliente $cliente)
+{
+    return $user->hasRole(['admin', 'empresa'])
+        && $cliente->empresa_id === $user->empresa_id;
+}
 
-    /**
-     * Apagar cliente — Somente administrador
-     */
-    public function delete(User $user, Cliente $cliente)
-    {
-        return $user->hasRole('admin')
-            && $user->empresa_id === $cliente->empresa_id;
-    }
+public function delete(User $user, Cliente $cliente)
+{
+    return $user->hasRole('admin')
+        && $cliente->empresa_id === $user->empresa_id;
+}
+
 }

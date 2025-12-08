@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Empresa;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
 
 class UserSeeder extends Seeder
 {
@@ -14,9 +15,9 @@ class UserSeeder extends Seeder
         // Desativa FK temporariamente
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        // Buscar a empresa que já existe
+        // Buscar ou criar empresa FaturaJa
         $empresa = Empresa::firstOrCreate(
-            ['slug' => 'faturaja'], // se não existir, cria
+            ['slug' => 'faturaja'], 
             [
                 'nome' => 'FaturaJa',
                 'nif' => '123456789',
@@ -27,19 +28,33 @@ class UserSeeder extends Seeder
             ]
         );
 
+        // Criar roles caso não existam
+        $adminRole = Role::firstOrCreate(['name' => 'admin']);
+        $empresaRole = Role::firstOrCreate(['name' => 'empresa']);
+
         // Criar usuário admin
-        User::firstOrCreate(
-            ['email' => 'admin@faturaja.com'], // evita duplicação
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@faturaja.com'], 
             [
                 'name' => 'Admin FaturaJa',
-                'password' => bcrypt('123456'), // senha padrão
+                'password' => bcrypt('123456'),
                 'empresa_id' => $empresa->id,
             ]
         );
+        $admin->assignRole($adminRole);
+
+        // Criar usuário padrão da empresa
+        $usuarioEmpresa = User::firstOrCreate(
+            ['email' => 'empresa@faturaja.com'], 
+            [
+                'name' => 'Usuário Empresa',
+                'password' => bcrypt('123456'),
+                'empresa_id' => $empresa->id,
+            ]
+        );
+        $usuarioEmpresa->assignRole($empresaRole);
 
         // Reativa FK
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
-
-
-    }
+}

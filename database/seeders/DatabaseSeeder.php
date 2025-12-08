@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 use Database\Seeders\EmpresaSeeder;
 use Database\Seeders\UserSeeder;
 use Database\Seeders\ClienteSeeder;
+use Database\Seeders\RolePermissionSeeder;
+use Database\Seeders\AdminSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -20,7 +22,7 @@ class DatabaseSeeder extends Seeder
         $this->call(UserSeeder::class);
         $this->call(RolePermissionSeeder::class);
         $this->call(ClienteSeeder::class);  
-
+        $this->call(AdminSeeder::class);
         // Desativa FK temporariamente para evitar erros
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
