@@ -35,6 +35,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
             'password' => bcrypt('123456'),
             'empresa_id' => \App\Models\Empresa::first()->id,
+            'role' => 'admin',
         ]);
 
         // Reativa FK

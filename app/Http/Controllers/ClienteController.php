@@ -10,14 +10,16 @@ class ClienteController extends Controller
 {
     public function __construct()
     {
-        // Somente usuários autenticados podem acessar
+        // Qualquer usuário autenticado pode ver clientes
         $this->middleware('auth');
-        // Admin ou Empresa
-        $this->middleware('role:admin|empresa');
+
+        // Apenas usuários com role=empresa podem acessar
+        // Admin não acessa este fluxo
+        $this->middleware('role:empresa');
     }
 
     /**
-     * Listar clientes – Admin e Empresa podem ver apenas da sua empresa
+     * Listar os clientes da empresa autenticada
      */
     public function index()
     {
@@ -31,7 +33,7 @@ class ClienteController extends Controller
     }
 
     /**
-     * Página do formulário de criação – Admin e Empresa
+     * Formulário de criação
      */
     public function create()
     {
@@ -41,7 +43,7 @@ class ClienteController extends Controller
     }
 
     /**
-     * Criar cliente – vinculado automaticamente à empresa autenticada
+     * Criar cliente para a empresa autenticada
      */
     public function store(Request $request)
     {
@@ -56,10 +58,10 @@ class ClienteController extends Controller
 
         Cliente::create([
             'empresa_id' => $empresa->id,
-            'nome'      => $request->nome,
-            'email'     => $request->email,
-            'telefone'  => $request->telefone,
-            'endereco'  => $request->endereco
+            'nome'       => $request->nome,
+            'email'      => $request->email,
+            'telefone'   => $request->telefone,
+            'endereco'   => $request->endereco
         ]);
 
         return redirect()
@@ -68,7 +70,7 @@ class ClienteController extends Controller
     }
 
     /**
-     * Editar cliente – mas só se pertencer à empresa do usuário
+     * Editar cliente da própria empresa
      */
     public function edit(Cliente $cliente)
     {
@@ -78,7 +80,7 @@ class ClienteController extends Controller
     }
 
     /**
-     * Atualizar cliente – também verificado pela Policy
+     * Atualizar cliente
      */
     public function update(Request $request, Cliente $cliente)
     {
@@ -97,7 +99,8 @@ class ClienteController extends Controller
     }
 
     /**
-     * Apagar cliente – somente Admin
+     * Excluir cliente
+     * → Se quiser que somente admin apague, deixe na policy
      */
     public function destroy(Cliente $cliente)
     {

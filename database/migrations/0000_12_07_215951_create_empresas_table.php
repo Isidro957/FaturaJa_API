@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('endereco')->nullable(); // Endereço opcional
             $table->string('email')->unique(); // E-mail da empresa
             $table->string('telefone')->nullable(); // Telefone opcional
-            $table->string('logo')->nullable()->comment('Caminho da imagem da empresa'); // Logo opcional
+            $table->string('logo'); // ->nullable()->comment('Caminho da imagem da empresa');Logo opcional
             $table->timestamps(); // created_at e updated_at
         });
 

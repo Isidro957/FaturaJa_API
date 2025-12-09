@@ -29,6 +29,7 @@
             <thead class="table-light">
                 <tr>
                     <th>ID</th>
+                    <th>Logo</th> <!-- NOVA COLUNA -->
                     <th>Nome</th>
                     <th>Slug</th>
                     <th>Email</th>
@@ -40,6 +41,18 @@
             @forelse($empresas as $empresa)
                 <tr>
                     <td>{{ $empresa->id }}</td>
+
+                    <!-- LOGO DA EMPRESA -->
+                    <td>
+                        @if($empresa->logo)
+                            <img src="{{ asset('storage/' . $empresa->logo) }}"
+                                 alt="Logo"
+                                 style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;">
+                        @else
+                            <span class="text-muted">Sem logo</span>
+                        @endif
+                    </td>
+
                     <td>{{ $empresa->nome }}</td>
                     <td>{{ $empresa->slug }}</td>
                     <td>{{ $empresa->email }}</td>
@@ -66,7 +79,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="5" class="text-center p-3">
+                    <td colspan="6" class="text-center p-3">
                         Nenhuma empresa cadastrada.
                     </td>
                 </tr>

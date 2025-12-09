@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Permission\Traits\HasRoles;
 
 class Cliente extends Model
 {
-    use HasFactory;
+    use HasFactory, HasRoles;
 
     protected $table = 'clientes';
+    protected $guard_name = 'web';
 
     protected $fillable = [
         'empresa_id',
@@ -19,11 +21,8 @@ class Cliente extends Model
         'endereco',
     ];
 
-    // Relacionamento com empresa
     public function empresa()
     {
         return $this->belongsTo(Empresa::class);
     }
-
-    // Relacionamento com faturas
 }

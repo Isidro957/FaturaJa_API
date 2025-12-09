@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Empresa;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
 
 class UserSeeder extends Seeder
@@ -14,6 +15,12 @@ class UserSeeder extends Seeder
     {
         // Desativa FK temporariamente
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+        // Copiar a imagem para o storage (logo da empresa)
+        $logoPath = Storage::putFile(
+            'logos',
+            new \Illuminate\Http\File(public_path('images/f.jpg'))
+        );
 
         // Buscar ou criar empresa FaturaJa
         $empresa = Empresa::firstOrCreate(
@@ -24,7 +31,8 @@ class UserSeeder extends Seeder
                 'email' => 'contato@faturaja.com',
                 'telefone' => '222222222',
                 'endereco' => 'Rua Exemplo, Luanda',
-                'logo' => null,
+                'role' => 'empresa',
+                'logo' => $logoPath, // caminho salvo no storage
             ]
         );
 
@@ -39,17 +47,19 @@ class UserSeeder extends Seeder
                 'name' => 'Admin FaturaJa',
                 'password' => bcrypt('123456'),
                 'empresa_id' => $empresa->id,
+                'role' => 'admin',
             ]
         );
         $admin->assignRole($adminRole);
 
         // Criar usuário padrão da empresa
         $usuarioEmpresa = User::firstOrCreate(
-            ['email' => 'empresa@faturaja.com'], 
+            ['email' => 'fatimaempresa@faturaja.com'], 
             [
-                'name' => 'Usuário Empresa',
+                'name' => 'Fatima Empresa',
                 'password' => bcrypt('123456'),
                 'empresa_id' => $empresa->id,
+                'role' => 'empresa',
             ]
         );
         $usuarioEmpresa->assignRole($empresaRole);

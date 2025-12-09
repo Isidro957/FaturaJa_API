@@ -14,7 +14,7 @@ class RolePermissionSeeder extends Seeder
 
     // PERMISSÕES DO SISTEMA
     $permissions = [
-        'gerenciar usuarios' => ['admin'],
+        'gerenciar usuarios' => ['admin', 'empresa'],
         'gerenciar empresas' => ['admin'],
         'gerenciar faturas' => ['admin', 'empresa'],
         'gerenciar clientes' => ['admin', 'empresa'],

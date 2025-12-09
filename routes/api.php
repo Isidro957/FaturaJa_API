@@ -2,34 +2,59 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\EmpresaController;
+use App\Http\Controllers\Api\ClienteControllerApi;
 
 /*
 |--------------------------------------------------------------------------
-| API Routes
+| ROTAS PÚBLICAS
 |--------------------------------------------------------------------------
 */
 
-// Registro e login via API
-Route::post('/register', [AuthController::class, 'register']);
+// Login e Registro
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
 
-// Rotas protegidas por token
+/*
+|--------------------------------------------------------------------------
+| ROTAS PROTEGIDAS POR SANCTUM
+|--------------------------------------------------------------------------
+*/
 Route::middleware('auth:sanctum')->group(function () {
 
-    // Dashboard API
-    Route::get('/dashboard', function (\Illuminate\Http\Request $request) {
-        $user = $request->user();
-        $empresa = $user->empresa;
+    // Informações do usuário autenticado
+    Route::get('/me', fn() => auth('sanctum')->user());
 
-        return response()->json([
-            'user' => $user,
-            'empresa' => $empresa
-        ]);
+    // Logout
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | ROTAS DO ADMIN
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware('role:admin')->group(function () {
+        Route::apiResource('empresas', EmpresaController::class);
     });
 
-    // Logout API
-    Route::post('/logout', function (\Illuminate\Http\Request $request) {
-        $request->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'Logout realizado com sucesso']);
+    /*
+    |--------------------------------------------------------------------------
+    | ROTAS DA EMPRESA
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware('role:empresa')->group(function () {
+        // Empresa gerencia seus clientes via API
+        Route::apiResource('clientes', ClienteControllerApi::class)
+            ->except(['create', 'edit']); // API não usa formulários
     });
+
+    /*
+    |--------------------------------------------------------------------------
+    | ROTAS DO CLIENTE FINAL
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware('role:cliente')->group(function () {
+        Route::get('me/faturas', [ClienteControllerApi::class, 'minhasFaturas']);
+    });
+
 });

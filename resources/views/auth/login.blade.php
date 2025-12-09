@@ -34,9 +34,6 @@
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Login</button>
                     </form>
-                    <div class="mt-3 text-center">
-                        <a href="{{ route('register') }}">Não tem conta? Registrar</a>
-                    </div>
                 </div>
             </div>
         </div>

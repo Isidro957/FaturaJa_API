@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
 
+        
         /*
         |--------------------------------------------------------------------------
         | Alias de Middlewares - Laravel 11/12

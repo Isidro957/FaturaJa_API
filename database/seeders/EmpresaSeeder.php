@@ -3,41 +3,49 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\File;
 use App\Models\Empresa;
 use App\Models\User;
-use Spatie\Permission\Models\Role;
 
 class EmpresaSeeder extends Seeder
 {
     public function run()
     {
-        // Criar role empresa se não existir
-        $role = Role::firstOrCreate(['name' => 'empresa']);
+        // Verifica e cria pasta storage/app/public/logos
+        Storage::disk('public')->makeDirectory('logos');
 
-        // Criar empresa de teste
+        // Copiar imagem da pasta public/images para storage
+        $logoPath = 'images/f.jpg';
+        $sourcePath = public_path('images/f.jpg');
+
+        if (file_exists($sourcePath)) {
+            $logoPath = Storage::disk('public')->putFile('images', new File($sourcePath));
+        }
+
+        // Criar empresa de teste com a logo
         $empresa = Empresa::firstOrCreate(
-            ['slug' => 'faturaja'], 
+            ['slug' => 'faturaja'],
             [
                 'nome' => 'FaturaJa',
                 'nif' => '123456789',
                 'email' => 'contato@faturaja.com',
                 'telefone' => '222222222',
                 'endereco' => 'Rua Exemplo, Luanda',
-                'logo' => null,
+                'logo' => $logoPath,   // <-- caminho final já salvo
+                
             ]
         );
 
-        // Criar usuário admin vinculado à empresa
-        $admin = User::firstOrCreate(
+        // Criar usuário admin
+        User::firstOrCreate(
             ['email' => 'admin@faturaja.com'],
             [
                 'name' => 'Admin FaturaJa',
-                'password' => bcrypt('123456'), // senha padrão
+                'password' => bcrypt('123456'),
                 'empresa_id' => $empresa->id,
+                'role' => 'admin',
             ]
         );
-
-        // Atribuir role correto ao usuário
-        $admin->assignRole('empresa'); // ✅ use 'empresa' em vez de 'role'
     }
 }
