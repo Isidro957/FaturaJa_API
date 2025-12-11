@@ -12,18 +12,47 @@ class EmpresaSeeder extends Seeder
 {
     public function run()
     {
-        // Verifica e cria pasta storage/app/public/logos
+        // Criar pastas caso não existam
         Storage::disk('public')->makeDirectory('logos');
+        Storage::disk('public')->makeDirectory('avatars');
 
-        // Copiar imagem da pasta public/images para storage
-        $logoPath = 'images/f.jpg';
-        $sourcePath = public_path('images/f.jpg');
+        /*
+        |--------------------------------------------------------------------------
+        | Avatar do Admin - vindo de storage/app/public/images
+        |--------------------------------------------------------------------------
+        */
+        $avatarSource = storage_path('app/public/images/avatar_admin.jpg');
 
-        if (file_exists($sourcePath)) {
-            $logoPath = Storage::disk('public')->putFile('images', new File($sourcePath));
+        if (!file_exists($avatarSource)) {
+            dd("ERRO: A imagem do avatar não existe em: " . $avatarSource);
         }
 
-        // Criar empresa de teste com a logo
+        $avatarAdmin = Storage::disk('public')->putFile(
+            'avatars',
+            new File($avatarSource)
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Logo da Empresa - vindo de storage/app/public/images
+        |--------------------------------------------------------------------------
+        */
+        $logoSource = storage_path('app/public/images/f.jpg');
+
+        if (!file_exists($logoSource)) {
+            dd("ERRO: A logo não existe em: " . $logoSource);
+        }
+
+        $logoPath = Storage::disk('public')->putFile(
+            'logos',
+            new File($logoSource)
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Criar Empresa
+        |--------------------------------------------------------------------------
+        */
         $empresa = Empresa::firstOrCreate(
             ['slug' => 'faturaja'],
             [
@@ -32,12 +61,15 @@ class EmpresaSeeder extends Seeder
                 'email' => 'contato@faturaja.com',
                 'telefone' => '222222222',
                 'endereco' => 'Rua Exemplo, Luanda',
-                'logo' => $logoPath,   // <-- caminho final já salvo
-                
+                'logo' => $logoPath, // caminho final
             ]
         );
 
-        // Criar usuário admin
+        /*
+        |--------------------------------------------------------------------------
+        | Criar Usuário Admin
+        |--------------------------------------------------------------------------
+        */
         User::firstOrCreate(
             ['email' => 'admin@faturaja.com'],
             [
@@ -45,6 +77,7 @@ class EmpresaSeeder extends Seeder
                 'password' => bcrypt('123456'),
                 'empresa_id' => $empresa->id,
                 'role' => 'admin',
+                'avatar' => $avatarAdmin, // caminho final
             ]
         );
     }

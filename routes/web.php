@@ -39,13 +39,13 @@ Route::middleware('auth')->group(function () {
     | Rotas do Admin
     |--------------------------------------------------------------------------
     */
-    Route::middleware('role:admin')->group(function () {
+    Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
 
         // Admin → gerencia empresas
-        Route::resource('admin/empresas', AdminEmpresaController::class);
+        Route::resource('empresas', AdminEmpresaController::class);
 
-        // Admin → se quiser também pode gerenciar clientes
-        Route::resource('admin/clientes', ClienteController::class);
+        // Admin → gerencia clientes
+        Route::resource('clientes', ClienteController::class);
     });
 
     /*
@@ -53,10 +53,10 @@ Route::middleware('auth')->group(function () {
     | Rotas da Empresa
     |--------------------------------------------------------------------------
     */
-    Route::middleware('role:empresa')->group(function () {
+    Route::middleware('role:empresa|admin')->prefix('empresa')->name('empresa.')->group(function () {
 
         // Empresa → gerencia seus usuários internos
-        Route::resource('empresa/usuarios', EmpresaUserController::class);
+        Route::resource('usuarios', EmpresaUserController::class);
 
         // Empresa → gerencia seus clientes
         Route::resource('clientes', ClienteController::class)->except(['show']);

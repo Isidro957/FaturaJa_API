@@ -7,24 +7,58 @@ use App\Models\User;
 use App\Models\Empresa;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Http\File;   
+use Illuminate\Http\File;
 
 class AdminSeeder extends Seeder
 {
     public function run()
     {
-
-         // Verifica e cria pasta storage/app/public/logos
+        // Garantir que as pastas existem no storage
         Storage::disk('public')->makeDirectory('logos');
+        Storage::disk('public')->makeDirectory('avatars');
+        Storage::disk('public')->makeDirectory('images'); // onde estão as imagens originais
 
-        // Copiar imagem da pasta public/images para storage
-        $logoPath = 'images/f.jpg';
-        $sourcePath = public_path('images/f.jpg');
+        /*
+        |--------------------------------------------------------------------------
+        | 1. Buscar imagens que já estão em storage/app/public/images
+        |--------------------------------------------------------------------------
+        */
+        $logoSource = storage_path('app/public/images/f.jpg');
+        $avatarSource = storage_path('app/public/images/avatar_admin.jpg');
 
-        if (file_exists($sourcePath)) {
-            $logoPath = Storage::disk('public')->putFile('images', new File($sourcePath));
+        /*
+        |--------------------------------------------------------------------------
+        | 2. Salvar logo no diretório correto /logos
+        |--------------------------------------------------------------------------
+        */
+        $logoPath = null;
+
+        if (file_exists($logoSource)) {
+            $logoPath = Storage::disk('public')->putFile(
+                'logos',
+                new File($logoSource)
+            );
         }
-        // Buscar uma empresa existente ou criar uma genérica
+
+        /*
+        |--------------------------------------------------------------------------
+        | 3. Salvar avatar no diretório correto /avatars
+        |--------------------------------------------------------------------------
+        */
+        $avatarPath = null;
+
+        if (file_exists($avatarSource)) {
+            $avatarPath = Storage::disk('public')->putFile(
+                'avatars',
+                new File($avatarSource)
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | 4. Criar empresa
+        |--------------------------------------------------------------------------
+        */
         $empresa = Empresa::firstOrCreate(
             ['slug' => 'sistema'],
             [
@@ -33,26 +67,33 @@ class AdminSeeder extends Seeder
                 'email' => 'contato@sistema.com',
                 'telefone' => '222222222',
                 'endereco' => 'Luanda, Angola',
-                'logo' => $logoPath,
+                'logo' => $logoPath,      // logo final no storage/logos
             ]
         );
 
-        // Cria a role admin se não existir
+        /*
+        |--------------------------------------------------------------------------
+        | 5. Criar role admin
+        |--------------------------------------------------------------------------
+        */
         $role = Role::firstOrCreate(['name' => 'admin']);
 
-        // Cria o usuário admin se não existir
+        /*
+        |--------------------------------------------------------------------------
+        | 6. Criar o usuário admin
+        |--------------------------------------------------------------------------
+        */
         $user = User::firstOrCreate(
             ['email' => 'admin@sistema.com'],
             [
                 'name' => 'Administrador',
-                'password' => bcrypt('123456'), // Senha padrão
-                'empresa_id' => $empresa->id, 
+                'password' => bcrypt('123456'),
+                'empresa_id' => $empresa->id,
                 'role' => 'admin',
+                'avatar' => $avatarPath,  // avatar final no storage/avatars
             ]
         );
 
-        // Atribui a role admin ao usuário
         $user->assignRole($role);
     }
-
 }
